@@ -1,0 +1,5 @@
+These are the problems that have been solved on Kattis.
+If 3 underscores precede the name, that indicates a WIP (Work in Progress). 
+Why so many WIP's? 
+    Some Challenges are done for fun, others are done for practicing what is learnt in Advanced Algorithms class.
+    I prioritize those that are considered class practice over those that have been taken for fun.
