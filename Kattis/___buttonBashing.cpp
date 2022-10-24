@@ -2,14 +2,6 @@
 #include <queue>
 #include <vector>
 using namespace std;
-    /*use BFS let each layer represent the number times a button is pushed -> bp
-        then the nodes @ each layer will represent the sum of values each button thats been pushed is
-        BFS until desired value is reached.
-            You're then pushing to the BFS_Queue the running sums of button pushes
-
-        If you can't reach the desired value exactly, output the minimum number of button presses required to exceed
-        the desired time, and output the number of excess seconds -> i.e desiredTime - sumOfButtonPushes 
-    */
 
 struct times{
     int value = 0; //The actual number of time this object represents
@@ -17,60 +9,64 @@ struct times{
 }; 
 
 int main(){
-    int numCases, bp, timer;
-    int numButtons, desiredTime, buttonTimes;
-    bool found = false;
-    vector <int> Buttons;
-    vector <int> negButtons;
+    ios::sync_with_stdio(false); cin.tie(NULL); cout.tie(NULL);
+    int numCases, numButtons, desiredTime, buttonTimes;
+    vector <int> posButtons, negButtons;
     vector <int>::iterator itr;
-    priority_queue<int> bt; // This will hold the button times available. Im just going to slap this into the queue below
-    queue<times> BFS; // this is queue for BFS --> Hypothetically This will the times explored;
+    queue<times> BFS, backwards; // this is queue for BFS --> Hypothetically This will the times explored;
     times front;
+    bool desired_found;
 
     cin>>numCases;
     for(int x =0 ; x< numCases; x++){
+        BFS = queue<times>();
+        backwards = queue<times>(); 
+        solution = queue<times>();
+
+        negButtons.clear();
+        posButtons.clear();
+        desired_found = false;
         cin>>numButtons>>desiredTime;
-        bp = 0;
         for(int y =0; y < numButtons; y++ ){
             cin>>buttonTimes;
-            Buttons.push_back(buttonTimes);
+            if(buttonTimes > 0)
+                posButtons.push_back(buttonTimes);
             if(buttonTimes < 0)
                 negButtons.push_back(buttonTimes);
         }
-    }
-    found = true;
-    BFS.push(times{0,0});
-    while(!BFS.empty()){ //Finds the number of button presses to either reach or exceed the desired time
-        front = BFS.front();
-        BFS.pop();
-        if(front.value >= desiredTime)
-            break;
-        for(itr = Buttons.begin(); itr<Buttons.end(); itr++)
-            BFS.push(times{front.value+*itr, front.distance+1 });
-    }
 
-    //Now front of the queue will hold the first value to be >= desired, but the next 'Buttons.size()'-elements could also be candidates, so keep smallest of those
-    times smallestValid = front;//Assume front value is the smallest valid
-    for(int x = 0; x < Buttons.size(); x++){
-        front = BFS.front();
-        if(smallestValid.value > front.value)
-            smallestValid = front;
-        BFS.pop();
-    }
-            
-    if(smallestValid.value > desiredTime){
-        front = smallestValid;
-        queue<times> backwards;
-        backwards.push(front); //Push the front value, try go backwards with the negative buttons
-        while(!backwards.empty()){
-            front = backwards.front();
-            if(front.value == desiredTime)
+        BFS.push(times{0,0});
+        while(!BFS.empty()){ //Finds the number of button presses to either reach or exceed the desired time
+            front = BFS.front();
+            BFS.pop();
+            if(front.value >= desiredTime)
                 break;
-            for(itr = negButtons.begin(); itr<negButtons.end(); itr++)
-                if(front.value + *itr >= desiredTime) //Else, we don't want to waste time considering it
-                    backwards.push(times{front.value+ *itr, front.distance+1}); //We add itr.value to front value as the itr.value are negatives, so we're subtracting
+            for(itr = posButtons.begin(); itr<posButtons.end(); itr++){
+                times temp = {front.value+*itr, front.distance+1};
+                if(!desired_found && temp.value > desiredTime)
+                    BFS = queue<times>();
+                BFS.push(temp);
+            }
         }
+        times smallestValid = front;
+        if(smallestValid.value > desiredTime){
+            front = smallestValid;
+            backwards.push(front); //Push the front value, try go backwards with the negative buttons
+            while(!backwards.empty()){
+                front = backwards.front();
+                backwards.pop();
+                if(front.value == desiredTime)
+                    break;
+                for(itr = negButtons.begin(); itr<negButtons.end(); itr++) //Go through all the negative buttons and add their values to front time
+                    if(front.value + *itr >= desiredTime) //If time is still >= desired, add it. Else, we don't want to waste time considering it
+                        backwards.push(times{front.value+ *itr, front.distance+1}); //We add itr.value to front value as the itr.value are negatives, so we're subtracting
+            }
+        } //Now the front value will be the contain the number of button pushes required.
+    
+        if(front.value == desiredTime)
+            cout<<front.distance<<" "<<0<<endl;
+        else
+            cout<<smallestValid.distance<<" "<<smallestValid.value - desiredTime<<endl;
     }
-    //Research subset sum problem
     return 0;
 }
