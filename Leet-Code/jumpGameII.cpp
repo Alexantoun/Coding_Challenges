@@ -1,27 +1,17 @@
 class Solution {
 public:
-    struct solution{
-        int position;//current index
-        int range;//How far can you jump
-        int num_jump;
-    };
     int jump(vector<int>& nums) {
-        int target_index = nums.size()-1;
-        if(target_index == 0)
+        int size = nums.size()-1;
+        if(size < 1)
             return 0;
-        queue<solution> BFS; 
-        solution curr;
-        BFS.push(solution{0,nums[0], 0});
-        while(!BFS.empty()){
-            curr = BFS.front();
-            BFS.pop();
-            for(int i = nums[curr.position]; i > 0 ; i--){
-                if(curr.position + i >= target_index)
-                    return curr.num_jump + 1;
-                else
-                    BFS.push(solution{curr.position+1, nums[curr.position+i], curr.num_jump+1});
+        int jumps = 0, furthest = 0, currEnd =0 ; 
+        for(int i = 0; i < size; i ++){
+            furthest = max(furthest, i+nums[i]); //Sets furthest we can jump from current position
+            if (i == currEnd){
+                jumps++;
+                currEnd = furthest;
             }
         }
-        return -9999;
+        return jumps;
     }
 };
