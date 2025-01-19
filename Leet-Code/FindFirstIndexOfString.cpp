@@ -1,3 +1,5 @@
+//Given string called haystack, find the first occurance index of string needle
+
 class Solution {
 public:
     int strStr(string haystack, string needle) {
